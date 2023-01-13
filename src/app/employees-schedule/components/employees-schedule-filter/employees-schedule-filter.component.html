@@ -1,0 +1,40 @@
+<div class="box box-auto-margin" [formGroup]="employeesScheduleFilterForm">
+  <div class="item">
+    <mat-form-field>
+      <mat-label>Empleado</mat-label>
+      <mat-select formControlName="employeeId">
+        <mat-option
+          *ngFor="let employee of employees"
+          [value]="employee.employeeId"
+        >
+          {{ employee.name }}
+        </mat-option>
+      </mat-select>
+    </mat-form-field>
+  </div>
+  <div>
+    <div class="box">
+      <button
+        mat-icon-button
+        matTooltip="Semana anterior"
+        color="primary"
+        (click)="setWeekStartEndLastWeek()"
+      >
+        <mat-icon fontIcon="arrow_back_ios"></mat-icon>
+      </button>
+      <div>
+        {{ employeesScheduleFilterForm.value.startDate | date : "dd/MM/yyyy" }}
+        -
+        {{ employeesScheduleFilterForm.value.endDate | date : "dd/MM/yyyy" }}
+      </div>
+      <button
+        mat-icon-button
+        matTooltip="Siguiente semana"
+        color="primary"
+        (click)="setWeekStartEndNextWeek()"
+      >
+        <mat-icon fontIcon="arrow_forward_ios"></mat-icon>
+      </button>
+    </div>
+  </div>
+</div>
