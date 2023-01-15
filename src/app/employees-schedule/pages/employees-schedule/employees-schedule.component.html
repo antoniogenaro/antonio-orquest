@@ -2,3 +2,17 @@
   [employees]="employees$ | async"
   (filterChange)="onFilterChange($event)"
 ></app-employees-schedule-filter>
+<mat-card
+  [ngClass]="{ hide: loading }"
+  *ngIf="employeeClockInOuts$ | async as employeeClockInOuts"
+  class="employees-schedule-table-card"
+>
+  <mat-card-content>
+    <app-employees-schedule-table
+      [employeeClockInOuts]="employeeClockInOuts"
+    ></app-employees-schedule-table>
+  </mat-card-content>
+</mat-card>
+<div [ngClass]="{ hide: !loading }" class="box box-justify-content-center">
+  <mat-spinner></mat-spinner>
+</div>

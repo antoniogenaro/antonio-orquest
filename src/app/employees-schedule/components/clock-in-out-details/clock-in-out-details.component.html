@@ -1,0 +1,47 @@
+<ng-container *ngIf="employeeDayClockInOuts">
+  <ng-container *ngIf="employeeDayClockInOuts.restrictionsErrors">
+    <div
+      *ngIf="
+        employeeDayClockInOuts.restrictionsErrors.maxMinutesAllowedToWork !==
+        undefined
+      "
+      class="box box-align-items-center restriction-error"
+    >
+      <mat-icon fontIcon="error" inline></mat-icon>
+      <span>
+        El tiempo máximo de trabajo es
+        {{
+          employeeDayClockInOuts.restrictionsErrors.maxMinutesAllowedToWork
+            | hours
+        }}
+      </span>
+    </div>
+    <div
+      *ngIf="employeeDayClockInOuts.restrictionsErrors.minHourMinuteClockIn"
+      class="box box-align-items-center restriction-error"
+    >
+      <mat-icon fontIcon="error" inline></mat-icon>
+      <span>
+        La hora mínima de entrada es
+        {{ employeeDayClockInOuts.restrictionsErrors.minHourMinuteClockIn }}
+      </span>
+    </div>
+  </ng-container>
+  <div
+    *ngFor="let clockInOut of employeeDayClockInOuts.clockInOuts"
+    class="box box-align-items-center"
+  >
+    <mat-icon
+      *ngIf="clockInOut.state === 'INCOMPLETED'"
+      fontIcon="unpublished"
+      inline
+      class="clock-in-out-incompleted"
+    ></mat-icon>
+    {{ (clockInOut.clockIn | dateTz : "HH:mm") || "???" }} -
+    {{ (clockInOut.clockOut | dateTz : "HH:mm") || "???" }}
+    <ng-container *ngIf="clockInOut.restIn || clockInOut.restOut">
+      (Descanso: {{ (clockInOut.restIn | dateTz : "HH:mm") || "???" }} -
+      {{ (clockInOut.restOut | dateTz : "HH:mm") || "???" }})
+    </ng-container>
+  </div>
+</ng-container>

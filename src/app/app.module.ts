@@ -1,6 +1,7 @@
 import { NgModule } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
 
+import { DATE_PIPE_DEFAULT_OPTIONS } from '@angular/common';
 import { HttpClientModule } from '@angular/common/http';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { AppRoutingModule } from './app-routing.module';
@@ -16,7 +17,12 @@ import { LayoutModule } from './layout/layout.module';
     HttpClientModule,
     LayoutModule,
   ],
-  providers: [],
+  providers: [
+    {
+      provide: DATE_PIPE_DEFAULT_OPTIONS,
+      useValue: { timezone: 'GMT+0100' },
+    },
+  ],
   bootstrap: [AppComponent],
 })
 export class AppModule {}

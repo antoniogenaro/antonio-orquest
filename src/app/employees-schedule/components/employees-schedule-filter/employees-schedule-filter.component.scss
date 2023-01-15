@@ -1,14 +1,3 @@
-$margin: 1rem;
-
-.box {
-  display: flex;
-  &.box-auto-margin {
-    > *:not(:last-child) {
-      margin-right: $margin;
-    }
-  }
-  .item {
-    flex: 1;
-  }
-
+.week-dates {
+  font-size: 16px;
 }

@@ -5,6 +5,9 @@
   "projects": {
     "antonio-orquest": {
       "projectType": "application",
+      "i18n": {
+        "sourceLocale": "es-ES"
+      },
       "schematics": {
         "@schematics/angular:component": {
           "style": "scss",

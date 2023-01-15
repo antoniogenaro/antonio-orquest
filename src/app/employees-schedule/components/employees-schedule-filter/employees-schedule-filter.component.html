@@ -13,7 +13,7 @@
     </mat-form-field>
   </div>
   <div>
-    <div class="box">
+    <div class="box box-align-items-center">
       <button
         mat-icon-button
         matTooltip="Semana anterior"
@@ -22,10 +22,8 @@
       >
         <mat-icon fontIcon="arrow_back_ios"></mat-icon>
       </button>
-      <div>
-        {{ employeesScheduleFilterForm.value.startDate | date : "dd/MM/yyyy" }}
-        -
-        {{ employeesScheduleFilterForm.value.endDate | date : "dd/MM/yyyy" }}
+      <div class="week-dates">
+        {{ weekDatesText }}
       </div>
       <button
         mat-icon-button

@@ -1,0 +1,18 @@
+<div *ngIf="state">
+  <ng-container [ngSwitch]="state">
+    <div
+      *ngSwitchCase="'COMPLETED'"
+      class="box box-align-items-center state-completed"
+    >
+      <mat-icon fontIcon="check_circle"></mat-icon>
+      <span>Completo</span>
+    </div>
+    <div
+      *ngSwitchCase="'INCOMPLETED'"
+      class="box box-align-items-center state-incompleted"
+    >
+      <mat-icon fontIcon="unpublished"></mat-icon>
+      <span>Incompleto</span>
+    </div>
+  </ng-container>
+</div>

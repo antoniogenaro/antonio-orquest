@@ -1,5 +1,10 @@
 import { ChangeDetectionStrategy, Component, OnInit } from '@angular/core';
-import { EmployeesScheduleFilter } from '../../employees-schedule.model';
+import { finalize, Observable, shareReplay, switchMap } from 'rxjs';
+import {
+  Employee,
+  EmployeeDayClockInOuts,
+  EmployeesScheduleFilter,
+} from '../../employees-schedule.model';
 import { EmployeesScheduleService } from '../../employees-schedule.service';
 
 @Component({
@@ -9,7 +14,13 @@ import { EmployeesScheduleService } from '../../employees-schedule.service';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class EmployeesScheduleComponent implements OnInit {
-  employees$ = this.employeesScheduleService.getEmployees();
+  employees$: Observable<Employee[]> =
+    this.employeesScheduleService.getEmployees();
+  employeeClockInOuts$?: Observable<EmployeeDayClockInOuts[]>;
+  dailyRestrictions$ = this.employeesScheduleService
+    .getDailyRestrictions()
+    .pipe(shareReplay(1));
+  loading = false;
 
   constructor(private employeesScheduleService: EmployeesScheduleService) {}
 
@@ -18,11 +29,15 @@ export class EmployeesScheduleComponent implements OnInit {
   }
 
   onFilterChange(filter: EmployeesScheduleFilter): void {
-    console.log(filter);
-    this.employeesScheduleService
-      .getEmployeeClockInOuts(filter)
-      .subscribe((value) => {
-        console.log(value);
-      });
+    this.loading = true;
+    this.employeeClockInOuts$ = this.dailyRestrictions$.pipe(
+      switchMap((dailyRestrictions) =>
+        this.employeesScheduleService.getEmployeeClockInOuts(
+          filter,
+          dailyRestrictions
+        )
+      ),
+      finalize(() => (this.loading = false))
+    );
   }
 }
