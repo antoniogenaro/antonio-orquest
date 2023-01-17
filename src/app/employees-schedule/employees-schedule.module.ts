@@ -18,7 +18,7 @@ import { EmployeesScheduleTableComponent } from './components/employees-schedule
 import { EmployeesScheduleRoutingModule } from './employees-schedule-routing.module';
 import { EmployeesScheduleComponent } from './pages/employees-schedule/employees-schedule.component';
 
-const MaterialModules = [
+export const MaterialModules = [
   MatSelectModule,
   MatFormFieldModule,
   MatCardModule,

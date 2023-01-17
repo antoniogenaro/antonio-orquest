@@ -16,6 +16,7 @@ import {
   EmployeesScheduleFilter,
   EmployeesScheduleFilterForm,
 } from '../../employees-schedule.model';
+import { EmployeesScheduleUtilsService } from '../../services/employees-schedule-utils.service';
 
 @Component({
   selector: 'app-employees-schedule-filter',
@@ -32,13 +33,19 @@ export class EmployeesScheduleFilterComponent implements OnDestroy {
   employeesScheduleFilterForm: FormGroup<EmployeesScheduleFilterForm> =
     this.generateEmployeesScheduleFilterForm();
 
-  constructor(private cdr: ChangeDetectorRef) {}
+  constructor(
+    private cdr: ChangeDetectorRef,
+    private employeesScheduleUtils: EmployeesScheduleUtilsService
+  ) {}
 
   ngOnDestroy(): void {
     this.destroySubject$.next(null);
     this.destroySubject$.complete();
   }
 
+  /**
+   * Set the startDate and endDate to the last week
+   */
   setWeekStartEndLastWeek(): void {
     const startDate = this.employeesScheduleFilterForm.value.startDate;
     const endDate = this.employeesScheduleFilterForm.value.endDate;
@@ -50,6 +57,9 @@ export class EmployeesScheduleFilterComponent implements OnDestroy {
     });
   }
 
+  /**
+   * Set the startDate and endDate to the next week
+   */
   setWeekStartEndNextWeek(): void {
     const startDate = this.employeesScheduleFilterForm.value.startDate;
     const endDate = this.employeesScheduleFilterForm.value.endDate;
@@ -61,8 +71,12 @@ export class EmployeesScheduleFilterComponent implements OnDestroy {
     });
   }
 
+  /**
+   * Get the filter form
+   */
   private generateEmployeesScheduleFilterForm(): FormGroup<EmployeesScheduleFilterForm> {
-    const [startDate, endDate] = this.getWeekStartEnd(new Date());
+    const startDate = this.employeesScheduleUtils.getFirstDayOfWeek(new Date());
+    const endDate = this.employeesScheduleUtils.getLastDayOfWeek(new Date());
     const form = new FormGroup<EmployeesScheduleFilterForm>({
       employeeId: new FormControl(null, Validators.required),
       startDate: new FormControl<Date>(startDate, { nonNullable: true }),
@@ -88,15 +102,9 @@ export class EmployeesScheduleFilterComponent implements OnDestroy {
     return form;
   }
 
-  private getWeekStartEnd(date: Date): Date[] {
-    const day = date.getDay();
-    const diff = date.getDate() - day + (day === 0 ? -6 : 1);
-    const startDate = new Date(date.setDate(diff));
-    const endDate = new Date(startDate);
-    endDate.setDate(endDate.getDate() + 6);
-    return [startDate, endDate];
-  }
-
+  /**
+   * Get the text to display the start and end date of the week
+   */
   private getWeekDatesText(startDate?: Date, endDate?: Date): string {
     if (startDate && endDate) {
       return `${this.getDateText(startDate)} - ${this.getDateText(endDate)}`;
@@ -104,6 +112,9 @@ export class EmployeesScheduleFilterComponent implements OnDestroy {
     return '';
   }
 
+  /**
+   * Get the text to display the date
+   */
   private getDateText(date: Date): string {
     return formatInTimeZone(date, environment.timezone, 'dd/MM/yyyy');
   }

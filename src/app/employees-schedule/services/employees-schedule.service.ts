@@ -1,18 +1,17 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { differenceInMinutes } from 'date-fns';
 import { formatInTimeZone } from 'date-fns-tz';
 import { map, Observable, of } from 'rxjs';
 import { environment } from 'src/environments/environment';
 import {
   ClockInOut,
-  ClockInOutState,
   DayOfWeek,
   Employee,
   EmployeeDayClockInOuts,
   EmployeesScheduleFilter,
   WeekDailyRestrictions,
-} from './employees-schedule.model';
+} from '../employees-schedule.model';
+import { EmployeesScheduleUtilsService } from './employees-schedule-utils.service';
 
 const employees: Employee[] = [
   { employeeId: 111111111, name: '111111111' },
@@ -27,12 +26,21 @@ export class EmployeesScheduleService {
   private readonly clockInOutsEndpoint = `${environment.apiEndpoint}/clock-in-outs`;
   private readonly dailyRestrictionsEndpoint = `${environment.apiEndpoint}/daily-restrictions`;
 
-  constructor(private http: HttpClient) {}
+  constructor(
+    private http: HttpClient,
+    private employeesScheduleUtils: EmployeesScheduleUtilsService
+  ) {}
 
+  /**
+   * Returns an observable with the employees
+   */
   getEmployees(): Observable<Employee[]> {
     return of(employees);
   }
 
+  /**
+   * Returns an observable with the employee clockInOuts in the given date range
+   */
   getEmployeeClockInOuts(
     filter: EmployeesScheduleFilter,
     dailyRestrictions: WeekDailyRestrictions
@@ -41,8 +49,10 @@ export class EmployeesScheduleService {
       .get<EmployeeDayClockInOuts[]>(this.clockInOutsEndpoint, {
         params: {
           employeeId: filter.employeeId ?? '',
-          startDate: this.getDateString(filter.startDate),
-          endDate: this.getDateString(filter.endDate),
+          startDate: this.employeesScheduleUtils.getDateString(
+            filter.startDate
+          ),
+          endDate: this.employeesScheduleUtils.getDateString(filter.endDate),
         },
       })
       .pipe(
@@ -57,11 +67,16 @@ export class EmployeesScheduleService {
       );
   }
 
+  /**
+   * Returns an observable with the daily restrictions configuration
+   */
   getDailyRestrictions(): Observable<WeekDailyRestrictions> {
     return this.http.get<WeekDailyRestrictions>(this.dailyRestrictionsEndpoint);
   }
 
-  // Map employeeDayClockInOuts object
+  /**
+   * Map employeeDayClockInOuts object
+   */
   private mapEmployeeDayClockInOuts(
     employeeDayClockInOuts: EmployeeDayClockInOuts,
     dailyRestrictions: WeekDailyRestrictions
@@ -74,10 +89,13 @@ export class EmployeesScheduleService {
         dailyRestrictions,
         employeeDayClockInOuts.dayOfWeek
       );
+      // Sum clockInOuts minutes
       totalMinutes += clockInOut.totalMinutes ?? 0;
+      // Set employeeDayClockInOuts state to INCOMPLETED if the current clockInOut is INCOMPLETED
       if (clockInOut.state === 'INCOMPLETED') {
         employeeDayClockInOuts.state = 'INCOMPLETED';
       }
+      // Set employeeDayClockInOuts restrictionsErrors if the current clockInOut has restrictionsErrors
       if (clockInOut.restrictionsErrors?.minHourMinuteClockIn) {
         employeeDayClockInOuts.restrictionsErrors = {
           ...employeeDayClockInOuts.restrictionsErrors,
@@ -86,9 +104,11 @@ export class EmployeesScheduleService {
         };
       }
     });
+    // Set employeeDayClockInOuts totalMinutes
     employeeDayClockInOuts.totalMinutes = totalMinutes;
     const dayOfWeek = employeeDayClockInOuts.dayOfWeek;
     if (dayOfWeek) {
+      // Set employeeDayClockInOuts restrictionsErrors if the totalMinutes is greater than the maxMinutesAllowedToWork
       const maxMinutesAllowedToWork =
         dailyRestrictions[dayOfWeek].maxMinutesAllowedToWork ?? 0;
       if (totalMinutes > maxMinutesAllowedToWork) {
@@ -101,17 +121,23 @@ export class EmployeesScheduleService {
     return employeeDayClockInOuts;
   }
 
-  // Map clockInOut object
+  /**
+   * Map clockInOut object
+   */
   private mapClockInOut(
     clockInOut: ClockInOut,
     dailyRestrictions: WeekDailyRestrictions,
     dayOfWeek?: DayOfWeek
   ): ClockInOut {
-    clockInOut.state = this.getClockInOutState(clockInOut);
+    clockInOut.state =
+      this.employeesScheduleUtils.getClockInOutState(clockInOut);
+    // Set clockInOut totalMinutes if the clockInOut is completed
     if (clockInOut.state === 'COMPLETED') {
-      clockInOut.totalMinutes = this.sumClockInOutMinutes(clockInOut);
+      clockInOut.totalMinutes =
+        this.employeesScheduleUtils.sumClockInOutMinutes(clockInOut);
     }
     if (dayOfWeek) {
+      // Set clockInOut restrictionsErrors if the clockIn is before the min hour and minute
       const minHourClockIn = dailyRestrictions[dayOfWeek].minHourClockIn;
       const minMinuteClockIn = dailyRestrictions[dayOfWeek].minMinuteClockIn;
       if (
@@ -138,52 +164,5 @@ export class EmployeesScheduleService {
       }
     }
     return clockInOut;
-  }
-
-  // Get date string from date
-  private getDateString(date?: Date): string {
-    if (date) {
-      return formatInTimeZone(date, environment.timezone, 'yyyy-MM-dd');
-    }
-    return '';
-  }
-
-  // Sum minutes of a clockInOut between clockIn and clockOut excluding restIn and restOut
-  private sumClockInOutMinutes(clockInOut: ClockInOut): number {
-    const clockIn = clockInOut.clockIn;
-    const clockOut = clockInOut.clockOut;
-    const restIn = clockInOut.restIn;
-    const restOut = clockInOut.restOut;
-    const clockInOutMinutes = this.getMinutesBetween(clockIn, clockOut);
-    const restMinutes = this.getMinutesBetween(restIn, restOut);
-    const totalMinutes = clockInOutMinutes - restMinutes;
-    return totalMinutes;
-  }
-
-  // Get minutes between two dates
-  private getMinutesBetween(
-    date1?: Date | string,
-    date2?: Date | string
-  ): number {
-    if (date1 && date2) {
-      return differenceInMinutes(new Date(date2), new Date(date1));
-    }
-    return 0;
-  }
-
-  // Get state of a clockInOut
-  private getClockInOutState(clockInOut: ClockInOut): ClockInOutState {
-    if (
-      this.isOneDateNull(clockInOut.clockIn, clockInOut.clockOut) ||
-      this.isOneDateNull(clockInOut.restIn, clockInOut.restOut)
-    ) {
-      return 'INCOMPLETED';
-    }
-    return 'COMPLETED';
-  }
-
-  // Check if one of two dates is null and the other is not
-  private isOneDateNull(date1?: Date, date2?: Date): boolean {
-    return !!(date1 && !date2) || !!(!date1 && date2);
   }
 }

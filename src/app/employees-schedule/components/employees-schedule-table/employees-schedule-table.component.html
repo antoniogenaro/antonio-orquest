@@ -1,7 +1,7 @@
 <div class="total-hours">
   <span>Horas totales: {{ totalMinutes | hours }}</span>
 </div>
-<table mat-table [dataSource]="employeeClockInOuts">
+<table mat-table [dataSource]="employeeClockInOutsFilled">
   <ng-container matColumnDef="day">
     <th mat-header-cell *matHeaderCellDef>Día</th>
     <td mat-cell *matCellDef="let element">
@@ -11,7 +11,7 @@
   <ng-container matColumnDef="totalMinutes">
     <th mat-header-cell *matHeaderCellDef>Horas totales</th>
     <td mat-cell *matCellDef="let element">
-      {{ element.totalMinutes | hours }}
+      {{ (element.totalMinutes | hours) || "-" }}
     </td>
   </ng-container>
   <ng-container matColumnDef="details">

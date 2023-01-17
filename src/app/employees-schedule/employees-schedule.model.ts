@@ -22,8 +22,8 @@ export interface EmployeeDayClockInOutsRestrictionsErrors {
 }
 
 export interface ClockInOut {
-  clockIn: Date;
-  clockOut: Date;
+  clockIn?: Date;
+  clockOut?: Date;
   restIn?: Date;
   restOut?: Date;
   totalMinutes?: number;

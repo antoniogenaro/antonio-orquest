@@ -7,6 +7,9 @@ import { environment } from 'src/environments/environment';
   name: 'dateTz',
 })
 export class DateTzPipe implements PipeTransform {
+  /**
+   * Transform date to string in the given format with the timezone configured
+   */
   transform(
     date: Date | string | number | undefined | null,
     format: string

@@ -5,7 +5,7 @@ import {
   EmployeeDayClockInOuts,
   EmployeesScheduleFilter,
 } from '../../employees-schedule.model';
-import { EmployeesScheduleService } from '../../employees-schedule.service';
+import { EmployeesScheduleService } from '../../services/employees-schedule.service';
 
 @Component({
   selector: 'app-employees-schedule',
@@ -28,6 +28,9 @@ export class EmployeesScheduleComponent implements OnInit {
     this.employees$ = this.employeesScheduleService.getEmployees();
   }
 
+  /**
+   * Calls the service to get the employee clock in outs
+   */
   onFilterChange(filter: EmployeesScheduleFilter): void {
     this.loading = true;
     this.employeeClockInOuts$ = this.dailyRestrictions$.pipe(

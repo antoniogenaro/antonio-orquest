@@ -1,4 +1,6 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { HoursPipeModule } from 'src/app/shared/pipes/hours/hours.module';
+import { MaterialModules } from '../../employees-schedule.module';
 
 import { EmployeesScheduleTableComponent } from './employees-schedule-table.component';
 
@@ -8,9 +10,9 @@ describe('EmployeesScheduleTableComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [ EmployeesScheduleTableComponent ]
-    })
-    .compileComponents();
+      declarations: [EmployeesScheduleTableComponent],
+      imports: [HoursPipeModule, MaterialModules],
+    }).compileComponents();
 
     fixture = TestBed.createComponent(EmployeesScheduleTableComponent);
     component = fixture.componentInstance;

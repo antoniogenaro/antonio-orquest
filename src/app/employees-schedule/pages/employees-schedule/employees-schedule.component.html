@@ -9,8 +9,12 @@
 >
   <mat-card-content>
     <app-employees-schedule-table
+      *ngIf="employeeClockInOuts?.length; else noDataTemplate"
       [employeeClockInOuts]="employeeClockInOuts"
     ></app-employees-schedule-table>
+    <ng-template #noDataTemplate>
+      <div class="padding">No hay datos para el filtro actual</div>
+    </ng-template>
   </mat-card-content>
 </mat-card>
 <div [ngClass]="{ hide: !loading }" class="box box-justify-content-center">
