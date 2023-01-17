@@ -176,4 +176,20 @@ describe('EmployeesScheduleUtilsService', () => {
       expect(service.isOneDateNull(new Date(), new Date())).toBe(false);
     });
   });
+
+  describe('getFirstDayOfWeek', () => {
+    it('should return 2022-12-26', () => {
+      expect(service.getFirstDayOfWeek(new Date(2022, 11, 31))).toEqual(
+        new Date(2022, 11, 26)
+      );
+    });
+  });
+
+  describe('getLastDayOfWeek', () => {
+    it('should return 2023-01-01', () => {
+      expect(service.getLastDayOfWeek(new Date(2022, 11, 31))).toEqual(
+        new Date(2023, 0, 1)
+      );
+    });
+  });
 });

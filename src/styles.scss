@@ -18,6 +18,11 @@ $margin: 1rem;
   &.box-justify-content-center {
     justify-content: center;
   }
+  &.box-column-sm {
+    @media screen and (max-width: 768px) {
+      flex-direction: column;
+    }
+  }
   .item {
     flex: 1;
   }

@@ -9,11 +9,14 @@ export class HoursPipe implements PipeTransform {
    */
   transform(minutes: number): string {
     if (typeof minutes === 'number') {
+      const textArray = [];
       const hours = Math.floor(minutes / 60);
       const minutesRest = minutes % 60;
-      const hoursText = `${hours} horas`;
-      const minutesRestText = minutesRest ? `${minutesRest} minutos` : null;
-      return `${hoursText} ${minutesRestText ?? ''}`;
+      textArray.push(`${hours} horas`);
+      if (minutesRest) {
+        textArray.push(`${minutesRest} minutos`);
+      }
+      return textArray.join(' ') || '';
     }
     return '';
   }

@@ -1,4 +1,6 @@
 .employees-schedule-table-card {
+  width: 100%;
+  overflow-x: auto;
   mat-card-content {
     padding: 0;
   }
